@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>PVZ2 插件菜单</title>
+  <meta name="viewport" content="width=device-width, initial-scale=0.8, user-scalable=no" />
+  <style>
+    body {
+      margin: 0;
+      background: transparent;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      color: #333;
+    }
+
+
+    html {
+      zoom: 0.75;
+    }
+
+    *:not(input, checkbox, textarea) {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    #H5AlertView {
+      text-align: center;
+      padding: 8px;
+    }
+
+    #title-text {
+      font-size: 16px;
+      font-weight: bold;
+      color: #24B574;
+      margin-bottom: 6px;
+    }
+
+    #content-view {
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 20px;
+      padding: 10px;
+      border: 1px solid rgba(200,200,200,0.4);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(4px);
+    }
+
+    .ripple-button {
+      width: 100%;
+      height: 32px;
+      background-color: rgba(162, 233, 192, 0.7);
+      color: #105f46;
+      border: none;
+      border-radius: 10px;
+      margin: 4px 0;
+      font-size: 14px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ripple-button:active {
+      background-color: rgba(143, 215, 174, 0.7);
+    }
+
+    .ripple-button::after {
+      content: "";
+      position: absolute;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 100%;
+      width: 100px;
+      height: 100px;
+      top: 50%;
+      left: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      transition: transform 0.5s, opacity 1s;
+    }
+
+    .ripple-button:active::after {
+      transform: translate(-50%, -50%) scale(2);
+      opacity: 1;
+      transition: 0s;
+    }
+
+    .slider-container {
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #24B574;
+    }
+
+    .value-display {
+      display: none;
+    }
+
+    .address-container {
+      margin-top: 10px;
+      color: #555;
+      font-size: 12px;
+    }
+
+    .address-text {
+      cursor: pointer;
+      color: #24B574;
+    }
+
+    .address-text:hover {
+      text-decoration: underline;
+    }
+  </style>
+
+  <script>
+    let X, interval = null, currentLockedValue = 1, slotInterval = null, slotLocked = false;
+    let currentAddress = '';  // 用于动态显示当前按钮对应的地址
+
+    function init() {
+      if (typeof h5gg === 'undefined') {
+        return; // 去掉弹窗提示
+      }
+
+      X = h5gg.getRangesList('PvZ2');
+      setWindowDrag(50, 0, 70, 70);
+      layout();
+      window.addEventListener("orientationchange", layout);
+    }
+
+    function layout() {
+      const w = 180, h = 220;
+      const x = (window.screen.width - w) / 2;
+      const y = (window.screen.height - h) / 2;
+      setWindowRect(x, y, w, h);
+    }
+
+    function anniu1() {
+      try {
+        let jz2 = Number(X[0].start) + 0x54CB938;
+jz2 = Number(h5gg.getValue(jz2, 'I64')) + 0x68;
+jz2 = Number(h5gg.getValue(jz2, 'I64')) + 0xA8;
+jz2 = Number(h5gg.getValue(jz2, 'I64')) + 0x10;
+jz2 = Number(h5gg.getValue(jz2, 'I64')) + 0x4F8;
+jz2 = Number(h5gg.getValue(jz2, 'I64')) + 0x18;
+        h5gg.setValue(jz2, 10, 'I32');
+        updateDisplayedAddress(jz2.toString(16)); // 更新为点击的地址
+      } 
+      }
+    }
+
+    function anniu2() {
+      try {
+        let jz2 = Number(X[0].start) + 0x54C27E8;
+        jz2 = Number(h5gg.getValue(jz2, 'I64')) + 0x420;
+        jz2 = Number(h5gg.getValue(jz2, 'I64')) + 0x650;
+        jz2 = Number(h5gg.getValue(jz2, 'I64')) + 0x1F0;
+        h5gg.setValue(jz2, 261414912, 'I32');
+        updateDisplayedAddress(jz2.toString(16)); // 更新为点击的地址
+      } 
+      }
+    }
+
+    function updateValue(val) {
+      currentLockedValue = parseInt(val);
+
+      if (interval) clearInterval(interval);
+
+      try {
+        let jz2 = Number(X[0].start) + 0x52F5030;
+        jz2 = Number(h5gg.getValue(jz2, 'I64')) + 0x30;
+
+        interval = setInterval(() => {
+          h5gg.setValue(jz2, currentLockedValue, 'F32');
+        }, 16);
+updateDisplayedAddress(jz2.toString(16)); // 更新为点击的地址
+      } 
+      }
+    }
+
+    function anniu3() {
+      const btn = document.querySelector("button[onclick='anniu3()']");
+      
+      if (slotLocked) {
+        clearInterval(slotInterval);
+        slotInterval = null;
+        slotLocked = false;
+        btn.innerText = "能量豆锁定5";
+      } else {
+        try {
+          let jz2 = Number(X[0].start) + 0x53C4ED0;
+          jz2 = Number(h5gg.getValue(jz2, 'I64')) + 0x3A8;
+          jz2 = Number(h5gg.getValue(jz2, 'I64')) + 0x138;
+          jz2 = Number(h5gg.getValue(jz2, 'I64')) + 0x178;
+
+          slotInterval = setInterval(() => {
+            h5gg.setValue(jz2, 5, 'I32');
+          }, 16);
+
+          slotLocked = true;
+          btn.innerText = "及时关闭";
+updateDisplayedAddress(jz2.toString(16)); // 更新为点击的地址
+        } 
+      }
+    }
+
+    // 更新显示的地址
+    function updateDisplayedAddress(address) {
+      currentAddress = address;
+      document.getElementById('address-display').innerText = '点击复制地址: 0x' + address;
+    }
+
+    // 复制地址功能
+    function copyAddress() {
+      const tempInput = document.createElement('input');
+      tempInput.value = '0x' + currentAddress;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+    }
+  </script>
+</head>
+<body onload="init()">
+  <div id="H5AlertView">
+    <div id="title-text">橘子制作PVZ</div>
+    <div id="content-view">
+      <button class="ripple-button" onclick="anniu1()">改黄瓜为10</button>
+      <button class="ripple-button" onclick="anniu2()">无限阳光</button>
+      <button class="ripple-button" onclick="anniu3()">能量豆锁定5</button>
+
+      <div class="slider-container">
+        <input type="range" min="1" max="5" step="1" value="1" onchange="updateValue(this.value)">
+      </div>
+
+      <!-- 显示当前按钮对应的地址，并可复制 -->
+      <div class="address-container">
+        <span id="address-display" class="address-text" onclick="copyAddress()">点击复制地址</span>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
